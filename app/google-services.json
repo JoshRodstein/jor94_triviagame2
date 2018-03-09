@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "799985994683",
+    "firebase_url": "https://triviagame2-cc9fe.firebaseio.com",
+    "project_id": "triviagame2-cc9fe",
+    "storage_bucket": "triviagame2-cc9fe.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:799985994683:android:87906372561b388e",
+        "android_client_info": {
+          "package_name": "edu.pitt.cs1699.jor94_triviagame2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "799985994683-iqu7kb7skg7rtrhjdcfb23002hmvt911.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "edu.pitt.cs1699.jor94_triviagame2",
+            "certificate_hash": "984a2a0657962e56f0a22f20ac6baadde8a322ae"
+          }
+        },
+        {
+          "client_id": "799985994683-o372b9g8n6gfsj5d0qj7c27dpuh5nl94.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDDKud8XsUXM-et7MT6C2I6N9JpMYcQ2vw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "799985994683-o372b9g8n6gfsj5d0qj7c27dpuh5nl94.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
