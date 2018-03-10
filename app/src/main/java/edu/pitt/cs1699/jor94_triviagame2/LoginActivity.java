@@ -29,6 +29,11 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.*;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.Arrays;
 
@@ -52,7 +57,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-
+        configureSignIn();
 
         mSignInButton = (SignInButton) findViewById(R.id.sign_in_button);
         mSignInButton.setOnClickListener(new View.OnClickListener() {
@@ -60,11 +65,45 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if(view.getId() == R.id.sign_in_button) {
                     signIn();
+
                 }
             }
         });
 
-        configureSignIn();
+
+
+
+
+    }
+
+    public void userPhoto(){
+        DatabaseReference db = FirebaseDatabase.getInstance().getReference();
+        DatabaseReference photoResult = db.child("users").child(mAuth.getCurrentUser().getUid())
+                .child("photo");
+
+        photoResult.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String photoURL = dataSnapshot.getValue(String.class);
+                //do what you want with the email
+                if(photoURL.equals("null")){
+                    Log.w("USER_PHOTO", "Take User Photo: ");
+                    takePhoto();
+                } else {
+                    Log.w("USER_PHOTO", "User Has Photo: ");
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+
+    protected void takePhoto(){
+
     }
 
 
@@ -101,6 +140,7 @@ public class LoginActivity extends AppCompatActivity {
                 .setAvailableProviders(Arrays.asList(
                         new AuthUI.IdpConfig.GoogleBuilder().build()))
                 .build(), RC_SIGN_IN);
+        userPhoto();
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -120,6 +160,7 @@ public class LoginActivity extends AppCompatActivity {
                 Log.w(GoogleTAG, "Failed:\n" + e);
             }
         }*/
+
         if (requestCode == RC_SIGN_IN) {
             IdpResponse response = IdpResponse.fromResultIntent(data);
 
@@ -170,8 +211,13 @@ public class LoginActivity extends AppCompatActivity {
 
     public void onDestroy() {
         super.onDestroy();
-        // sign-out user on app close
-        FirebaseAuth.getInstance().signOut();
+        AuthUI.getInstance()
+                .signOut(this)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Log.w("ON_DESTROY", "CALLED:\n");
+                    }
+                });
 
     }
 

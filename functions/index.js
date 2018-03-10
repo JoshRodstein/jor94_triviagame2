@@ -30,7 +30,7 @@ exports.addUserToDB = functions.auth.user().onCreate(event => {
   admin.database().ref('/users/' + event.data.uid).set({
     name: event.data.displayName,
     email: event.data.email,
-    photo: event.data.photoURL,
+    photo: "null"
   });
   admin.database().ref('/scores/users/' + event.data.uid).set({
   });
