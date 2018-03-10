@@ -65,20 +65,15 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if(view.getId() == R.id.sign_in_button) {
                     signIn();
-
                 }
             }
         });
 
-
-
-
-
     }
 
-    public void userPhoto(){
+    public void userPhoto(FirebaseUser u){
         DatabaseReference db = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference photoResult = db.child("users").child(mAuth.getCurrentUser().getUid())
+        DatabaseReference photoResult = db.child("users").child(u.getUid())
                 .child("photo");
 
         photoResult.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -140,7 +135,7 @@ public class LoginActivity extends AppCompatActivity {
                 .setAvailableProviders(Arrays.asList(
                         new AuthUI.IdpConfig.GoogleBuilder().build()))
                 .build(), RC_SIGN_IN);
-        userPhoto();
+
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -167,7 +162,8 @@ public class LoginActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 // Successfully signed in
                 Log.w(GoogleTAG, "Success");
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                FirebaseUser user = mAuth.getCurrentUser();
+                userPhoto(user);
                 // ...
             } else {
                 // Sign in failed, check response for error code
@@ -176,7 +172,7 @@ public class LoginActivity extends AppCompatActivity {
         }
 
     }
-
+/*
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
         Log.w(FAuthWG, "firebaseAuthWithGoogle:" + acct.getId());
 
@@ -200,7 +196,7 @@ public class LoginActivity extends AppCompatActivity {
                         // ...
                     }
                 });
-    }
+    }*/
 
     public void onStart() {
         super.onStart();
