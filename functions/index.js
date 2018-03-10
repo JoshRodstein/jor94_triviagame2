@@ -23,9 +23,15 @@ exports.addMessage = functions.https.onRequest((req, res) => {
   });
 });
 
+// onEvent Functions
+
+// Upon new user Auth, add to DB
 exports.addUserToDB = functions.auth.user().onCreate(event => {
-  admin.database().ref('/users' + event.data.uid).set({
+  admin.database().ref('/users/' + event.data.uid).set({
     name: event.data.displayName,
-    email: event.data.email
+    email: event.data.email,
+    photo: event.data.photoURL,
+  });
+  admin.database().ref('/scores/users/' + event.data.uid).set({
   });
 });
