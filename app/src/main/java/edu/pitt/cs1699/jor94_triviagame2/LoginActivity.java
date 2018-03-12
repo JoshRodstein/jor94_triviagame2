@@ -3,13 +3,18 @@ package edu.pitt.cs1699.jor94_triviagame2;
 import android.app.usage.ConfigurationStats;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
@@ -35,6 +40,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Arrays;
 
 
@@ -42,6 +52,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private GoogleApiClient mGoogleApiClient;
     private final int RC_SIGN_IN = 202;
+    private final int RC_CAMERA = 204;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private static final String GoogleTAG= "GOOGLE_SIGN_IN:";
@@ -98,6 +109,8 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     protected void takePhoto(){
+        Intent photoCaptureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(photoCaptureIntent, RC_CAMERA);
 
     }
 
@@ -169,8 +182,45 @@ public class LoginActivity extends AppCompatActivity {
                 // Sign in failed, check response for error code
                 Log.w(GoogleTAG, "Failed:\n" + response);
             }
+        } else if (requestCode == RC_CAMERA && resultCode == RESULT_OK) {
+            Bitmap bitmap = (Bitmap)data.getExtras().get("data");
+
+
+            storeCameraPhotoInSDCard(bitmap);
+
+            // display the image from SD Card to ImageView Control
+            String storeFilename = "user_photo.jpg";
+            //Bitmap mBitmap = getImageFileFromSDCard(storeFilename);
+            //imageHolder.setImageBitmap(mBitmap);
+
         }
 
+    }
+
+    private void storeCameraPhotoInSDCard(Bitmap bitmap){
+        File outputFile = new File(Environment.getExternalStorageDirectory(), "user_photo.jpg");
+        try {
+            FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
+            fileOutputStream.flush();
+            fileOutputStream.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private Bitmap getImageFileFromSDCard(String filename){
+        Bitmap bitmap = null;
+        File imageFile = new File(Environment.getExternalStorageDirectory() + filename);
+        try {
+            FileInputStream fis = new FileInputStream(imageFile);
+            bitmap = BitmapFactory.decodeStream(fis);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return bitmap;
     }
 /*
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
