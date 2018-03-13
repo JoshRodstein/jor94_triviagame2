@@ -4,6 +4,7 @@
     package="edu.pitt.cs1699.jor94_triviagame2">
 
     <uses-permission android:name="android.permission.INTERNET"/>
+
     <uses-feature
         android:name="android.hardware.camera"
         android:required="true"

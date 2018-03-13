@@ -4,9 +4,7 @@ import android.app.usage.ConfigurationStats;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -20,31 +18,26 @@ import android.widget.Toast;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.android.gms.auth.api.Auth;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
-import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.*;
-import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 
 
@@ -55,11 +48,12 @@ public class LoginActivity extends AppCompatActivity {
     private final int RC_CAMERA = 204;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
+    private FirebaseStorage storage;
+    private DatabaseReference db, photoResult;
+    private Uri downloadUrl;
     private static final String GoogleTAG= "GOOGLE_SIGN_IN:";
-    private static final String FAuthWG= "FIREBASE_AUTH_WITH_GOOGLE";
-    private String idToken;
-    //public SharedPrefManager sharedPrefManager;
-    private final Context mContext = this;
+    private static final String UserPhotoTAG= "UPLOAD_USER_PHOTO:";
+
 
     private SignInButton mSignInButton;
 
@@ -79,43 +73,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
-
     }
-
-    public void userPhoto(FirebaseUser u){
-        DatabaseReference db = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference photoResult = db.child("users").child(u.getUid())
-                .child("photo");
-
-        photoResult.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                String photoURL = dataSnapshot.getValue(String.class);
-                //do what you want with the email
-                if(photoURL.equals("null")){
-                    Log.w("USER_PHOTO", "Take User Photo: ");
-                    takePhoto();
-                } else {
-                    Log.w("USER_PHOTO", "User Has Photo: ");
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
-    }
-
-    protected void takePhoto(){
-        Intent photoCaptureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(photoCaptureIntent, RC_CAMERA);
-
-    }
-
-
-
 
     public void configureSignIn(){
         // Configure sign-in to request the user’s basic profile like name and email
@@ -140,7 +98,6 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-
     private void signIn(){
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
         startActivityForResult(AuthUI.getInstance()
@@ -151,23 +108,32 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
+    public void uploadUserPhoto(FirebaseUser u){
+        db = FirebaseDatabase.getInstance().getReference();
+        photoResult = db.child("users").child(u.getUid())
+                .child("photo");
+        photoResult.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String photoURL = dataSnapshot.getValue(String.class);
+                //do what you want with the email
+                if(photoURL == null || photoURL.equals("null")){
+                    Log.w(UserPhotoTAG, "Take User Photo: ");
+                    Intent photoCaptureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    startActivityForResult(photoCaptureIntent, RC_CAMERA);
+                } else {
+                    Log.w(UserPhotoTAG, "User Has Photo: ");
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-/*
-        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(…);
-        if (requestCode == RC_SIGN_IN) {
-
-            //GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            try {
-                //Google SIgn in was Successful, save token/state, then auth with Firebase
-                GoogleSignInAccount account = task.getResult(ApiException.class);
-                firebaseAuthWithGoogle(account);
-                Log.w(GoogleTAG, "Success");
-            } catch (ApiException e) {
-                Log.w(GoogleTAG, "Failed:\n" + e);
-            }
-        }*/
 
         if (requestCode == RC_SIGN_IN) {
             IdpResponse response = IdpResponse.fromResultIntent(data);
@@ -176,83 +142,45 @@ public class LoginActivity extends AppCompatActivity {
                 // Successfully signed in
                 Log.w(GoogleTAG, "Success");
                 FirebaseUser user = mAuth.getCurrentUser();
-                userPhoto(user);
-                // ...
+                uploadUserPhoto(user);
             } else {
                 // Sign in failed, check response for error code
                 Log.w(GoogleTAG, "Failed:\n" + response);
             }
         } else if (requestCode == RC_CAMERA && resultCode == RESULT_OK) {
+
+            String photo = mAuth.getCurrentUser().getUid() + ".jpg";
+
+            storage = FirebaseStorage.getInstance();
+            StorageReference storageRef = storage.getReference();
+            StorageReference userImagesRef = storageRef.child("user_photos/" + photo);
+
             Bitmap bitmap = (Bitmap)data.getExtras().get("data");
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            byte[] dataAry = baos.toByteArray();
 
+            UploadTask uploadTask = userImagesRef.putBytes(dataAry);
+            uploadTask.addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                    // Handle unsuccessful uploads
+                }
+            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
+                    downloadUrl = taskSnapshot.getDownloadUrl();
+                    photoResult.setValue(downloadUrl.toString());
 
-            storeCameraPhotoInSDCard(bitmap);
-
-            // display the image from SD Card to ImageView Control
-            String storeFilename = "user_photo.jpg";
-            //Bitmap mBitmap = getImageFileFromSDCard(storeFilename);
-            //imageHolder.setImageBitmap(mBitmap);
-
+                }
+            });
         }
 
     }
-
-    private void storeCameraPhotoInSDCard(Bitmap bitmap){
-        File outputFile = new File(Environment.getExternalStorageDirectory(), "user_photo.jpg");
-        try {
-            FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
-            fileOutputStream.flush();
-            fileOutputStream.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private Bitmap getImageFileFromSDCard(String filename){
-        Bitmap bitmap = null;
-        File imageFile = new File(Environment.getExternalStorageDirectory() + filename);
-        try {
-            FileInputStream fis = new FileInputStream(imageFile);
-            bitmap = BitmapFactory.decodeStream(fis);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return bitmap;
-    }
-/*
-    private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
-        Log.w(FAuthWG, "firebaseAuthWithGoogle:" + acct.getId());
-
-        AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.w(FAuthWG, "signInWithCredential:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            //updateUI(user);
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(FAuthWG, "signInWithCredential:failure", task.getException());
-                            //Snackbar.make(findViewById(R.id.ad_image_view), "Authentication Failed.", Snackbar.LENGTH_SHORT).show();
-                            //updateUI(null);
-                        }
-
-                        // ...
-                    }
-                });
-    }*/
 
     public void onStart() {
         super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        //updateUI(currentUser);
     }
 
     public void onDestroy() {
