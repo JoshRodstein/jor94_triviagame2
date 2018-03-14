@@ -1,0 +1,20 @@
+APK
+Android application package file
+dex file
+Compiled Android application code file
+Action
+A description of something that an Intent sender wants done
+Activity
+A single screen in an application, with supporting Java code, derived from the Activity class
+adb
+Android Debug Bridge, a command-line debugging application included with the SDK
+Application
+From a component perspective, an Android application consists of one or more activities, services, listeners, and intent receivers
+Canvas
+A drawing surface that handles compositing of the actual bits against a Bitmap or Surface object
+Content Provider
+A data-abstraction layer that you can use to safely expose your application's data to other applications
+Dalvik
+The Android platform's virtual machine
+Dialog
+A floating window that acts as a lightweight form
