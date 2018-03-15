@@ -51,11 +51,11 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseStorage storage;
     private DatabaseReference db, photoResult;
     private Uri downloadUrl;
+    private SignInButton mSignInButton;
+    private boolean authTrack = false;
     private static final String GoogleTAG= "GOOGLE_SIGN_IN:";
     private static final String UserPhotoTAG= "UPLOAD_USER_PHOTO:";
 
-
-    private SignInButton mSignInButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +73,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
+
     }
 
     public void configureSignIn(){
@@ -105,7 +106,6 @@ public class LoginActivity extends AppCompatActivity {
                 .setAvailableProviders(Arrays.asList(
                         new AuthUI.IdpConfig.GoogleBuilder().build()))
                 .build(), RC_SIGN_IN);
-
     }
 
     public void uploadUserPhoto(FirebaseUser u){
@@ -116,8 +116,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String photoURL = dataSnapshot.getValue(String.class);
-                //do what you want with the email
-                if(photoURL == null || photoURL.equals("null")){
+                if(photoURL.equals("null")){
                     Log.w(UserPhotoTAG, "Take User Photo: ");
                     Intent photoCaptureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                     startActivityForResult(photoCaptureIntent, RC_CAMERA);
@@ -127,9 +126,10 @@ public class LoginActivity extends AppCompatActivity {
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
+                return;
             }
         });
+        authTrack = true;
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -175,8 +175,17 @@ public class LoginActivity extends AppCompatActivity {
 
                 }
             });
+
         }
 
+    }
+
+    public void play_button(View view) {
+
+        if (authTrack == true || mAuth.getCurrentUser() != null) {
+            Intent intent = new Intent(this, StartActivity.class);
+            startActivity(intent);
+        }
     }
 
     public void onStart() {
@@ -192,6 +201,7 @@ public class LoginActivity extends AppCompatActivity {
                         Log.w("ON_DESTROY", "CALLED:\n");
                     }
                 });
+        authTrack = false;
 
     }
 
