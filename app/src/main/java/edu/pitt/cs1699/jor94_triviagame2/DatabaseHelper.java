@@ -25,6 +25,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TABLE_TERMS = "Terms";
     private static final String KEY_TERM = "term";
     private static final String KEY_DEF = "def";
+    private static final String ON_CREATE_TAG = "ON_CREATE: ";
 
     public DatabaseHelper(Context context){
        super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -46,8 +47,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for(DataSnapshot child:dataSnapshot.getChildren()) {
 
-                    Log.w("TERM: ",child.getKey());
-                    Log.w("DEF: ",child.getValue().toString());
+                    Log.w(ON_CREATE_TAG,child.getKey());
+                    Log.w(ON_CREATE_TAG,child.getValue().toString());
                     TermAndDef td = new TermAndDef(child.getKey(), child.getValue().toString());
                     addTerm(td);
                 }
