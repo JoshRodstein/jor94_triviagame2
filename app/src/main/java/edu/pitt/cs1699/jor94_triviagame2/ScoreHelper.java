@@ -27,7 +27,9 @@ public class ScoreHelper {
     public ScoreHelper (){
         mAuth = com.google.firebase.auth.FirebaseAuth.getInstance();
         fbdb = FirebaseDatabase.getInstance();
+    }
 
+    private void sortHigh(){
         DatabaseReference DBScoresRef = fbdb.getReference("Scores");
         DatabaseReference userNode = DBScoresRef.child(mAuth.getCurrentUser().getUid());
 
@@ -42,6 +44,34 @@ public class ScoreHelper {
 
                 Collections.sort(scoreList, Comparator.comparing(Scores::getScore));
                 Collections.sort(scoreList, Comparator.comparing(Scores::getTimestamp));
+
+                updateHighList(scoreList);
+
+            }@Override
+            public void onCancelled(DatabaseError firebaseError) {}
+        });
+
+
+    }
+
+    private void updateHighList(ArrayList<Scores> sc){
+        DatabaseReference DbHsRef = fbdb.getReference("HighScores");
+
+        DbHsRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()) {
+                    for(DataSnapshot child:dataSnapshot.getChildren()) {
+
+                    }
+                } else {
+                    for(int i = 0; i < 10 && i < sc.size(); i++) {
+                        DbHsRef.child("HighScores").child(sc.get(i).getTimestamp())
+                                .child(mAuth.getCurrentUser().getUid())
+                                .setValue(sc.get(i).getScore());
+                    }
+                }
+
 
             }@Override
             public void onCancelled(DatabaseError firebaseError) {}
