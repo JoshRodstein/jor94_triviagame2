@@ -8,12 +8,16 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +29,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TABLE_TERMS = "Terms";
     private static final String KEY_TERM = "term";
     private static final String KEY_DEF = "def";
+    private static final String TABLE_SCORES = "Scores";
+    private static final String KEY_TIME = "timestamp";
+    private static final String KEY_SCORE = "score";
     private static final String ON_CREATE_TAG = "ON_CREATE: ";
+    private FirebaseAuth mAuth;
+
+
 
     public DatabaseHelper(Context context){
        super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -35,14 +45,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Log.d("ON_CREATE DB HELPER:", "INSIDE DB ONCREATE");
         String CREATE_TERMS_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_TERMS + "(\n"
                 + KEY_TERM + " TEXT PRIMARY KEY,\n"
-                + KEY_DEF + " TEXT,"
+                + KEY_DEF + " TEXT"
                 + ");";
         db.execSQL(CREATE_TERMS_TABLE);
 
+        mAuth = com.google.firebase.auth.FirebaseAuth.getInstance();
         FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
-        DatabaseReference dbRef = fbdb.getReference("TermsAndDefs");
+        DatabaseReference DBTermsRef = fbdb.getReference("TermsAndDefs");
 
-        dbRef.addValueEventListener(new ValueEventListener() {
+        DBTermsRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for(DataSnapshot child:dataSnapshot.getChildren()) {
@@ -55,6 +66,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             }@Override
             public void onCancelled(DatabaseError firebaseError) {}
         });
+
     }
 
     public void onUpgrade(SQLiteDatabase db, int i, int i1){
@@ -65,6 +77,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     void addTerm(TermAndDef td){
         SQLiteDatabase db = this.getWritableDatabase();
+        FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
+        DatabaseReference dbRef = fbdb.getReference("TermsAndDefs");
+
+        dbRef.child(td.getTerm()).setValue(td.getDef());
 
         ContentValues values = new ContentValues();
         values.put(KEY_TERM, td.getTerm());
@@ -72,6 +88,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         db.insert(TABLE_TERMS, null, values);
         db.close();
+    }
+
+    void addScore(FirebaseUser id,  Scores s){
+        SQLiteDatabase db = this.getWritableDatabase();
+        FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
+        DatabaseReference dbRef = fbdb.getReference("Scores");
+
+        dbRef.child(id.getUid()).child(s.getTimestamp()).setValue(s.getScore());
     }
 
     TermAndDef getTermAndDef(String term) {

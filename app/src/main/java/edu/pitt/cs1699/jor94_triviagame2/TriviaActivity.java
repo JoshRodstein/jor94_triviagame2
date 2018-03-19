@@ -38,6 +38,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.*;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -57,11 +59,13 @@ public class TriviaActivity extends AppCompatActivity {
     DatabaseHelper db;
     ArrayList gList;
     int qCounter = 0, correct= 0, barProg = 0;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trivia);
+        mAuth = com.google.firebase.auth.FirebaseAuth.getInstance();
         byte[] bytes = new byte[1024];
         list_triv = findViewById(R.id.triv_list);
         term = findViewById(R.id.term_text);
@@ -71,6 +75,7 @@ public class TriviaActivity extends AppCompatActivity {
 
         // create DB instance for terms and defs
         db = new DatabaseHelper(this);
+        generateQuiz();
 
 
 
@@ -108,14 +113,9 @@ public class TriviaActivity extends AppCompatActivity {
     * */
     protected void saveScore(int correct){
         int score = correct * 20;
-        try {
-            FileOutputStream fOut = openFileOutput("score_history.txt",MODE_APPEND);
-            String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
-            fOut.write((currentDateTimeString + "\t" + score + "\n").getBytes());
-            fOut.close();
-        } catch(IOException io) {
-            Log.e("ERROR", io.toString());
-        }
+        String strScore = String.valueOf(score);
+        Scores s = new Scores(DateFormat.getDateTimeInstance().format(new Date()).toString(), strScore);
+        db.addScore(mAuth.getCurrentUser(), s);
     }
 
     /*
@@ -123,27 +123,26 @@ public class TriviaActivity extends AppCompatActivity {
     * */
     protected void generateQuiz(){
         Random rand = new Random();
-        if(db != null){
-            int t = rand.nextInt(5);
-            ArrayList<TermAndDef> tdList = db.getAllTermsAndDefs().;
-            Collections.shuffle(tdList);
-            term.setText(tdList.get(t).getDef());
-            ans = tdList.get(t).getTerm();
-            String[] tdAry = {
-                    tdList.get(0).getDef(),
-                    tdList.get(1).getDef(),
-                    tdList.get(2).getDef(),
-                    tdList.get(3).getDef(),
-                    tdList.get(4).getDef()
-            };
+        int t = rand.nextInt(5);
+        ArrayList<TermAndDef> tdList = new ArrayList<>(db.getAllTermsAndDefs());
+        Collections.shuffle(tdList);
+        term.setText(tdList.get(t).getTerm());
+        ans = tdList.get(t).getDef();
+        String[] tdAry = {
+                tdList.get(0).getDef(),
+                tdList.get(1).getDef(),
+                tdList.get(2).getDef(),
+                tdList.get(3).getDef(),
+                tdList.get(4).getDef()
+        };
 
-            ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
-                    this,
-                    android.R.layout.simple_list_item_1,
-                    tdAry);
+        final ArrayAdapter arrayAdapter = new ArrayAdapter<String>(
+                this,
+                android.R.layout.simple_list_item_1,
+                tdAry);
 
-            list_triv.setAdapter(arrayAdapter);
+        list_triv.setAdapter(arrayAdapter);
 
-        }
     }
+
 }

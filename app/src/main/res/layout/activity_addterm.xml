@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.josh.triviagame.addtermActivity">
+    tools:context="edu.pitt.cs1699.jor94_triviagame2.addtermActivity">
 
     <Button
         android:id="@+id/ok_button"

@@ -48,18 +48,18 @@ public class StartActivity extends AppCompatActivity {
     }
 
     public void playTrivia(View view) {
-        //Intent intent = new Intent(this, TriviaActivity.class);
-        //startActivity(intent);
+        Intent intent = new Intent(this, TriviaActivity.class);
+        startActivity(intent);
     }
 
     public void add_word_onClick(View view){
-        //Intent intent = new Intent(this, addtermActivity.class);
-        //startActivity(intent);
+        Intent intent = new Intent(this, addtermActivity.class);
+        startActivity(intent);
     }
 
     public void score_history(View view){
-        //Intent intent = new Intent(this, ScoreHistoryActivity.class);
-        //startActivity(intent);
+        Intent intent = new Intent(this, ScoreHistoryActivity.class);
+        startActivity(intent);
     }
 
 

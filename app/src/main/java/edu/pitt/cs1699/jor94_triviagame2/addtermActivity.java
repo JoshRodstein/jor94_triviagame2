@@ -7,10 +7,10 @@
 * */
 
 
-package com.example.josh.triviagame;
+package edu.pitt.cs1699.jor94_triviagame2;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -19,11 +19,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class addtermActivity extends AppCompatActivity {
-
+    DatabaseHelper db;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_addterm);
+        db = new DatabaseHelper(this);
     }
 
 
@@ -31,11 +32,11 @@ public class addtermActivity extends AppCompatActivity {
         EditText term = (EditText) findViewById(R.id.addterm_edittext);
         EditText def = (EditText) findViewById(R.id.adddef_edittext);
 
-        CharSequence termString = term.getText().toString();
-        CharSequence defString = def.getText().toString();
+        String termString = term.getText().toString();
+        String defString = def.getText().toString();
 
         if(!termString.equals("") && !defString.equals("")){
-            addToGlossary(termString, defString);
+           db.addTerm(new TermAndDef(termString, defString));
         }
 
         finish();

@@ -7,14 +7,23 @@
 * */
 
 
-package com.example.josh.triviagame;
+package edu.pitt.cs1699.jor94_triviagame2;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -27,6 +36,8 @@ public class ScoreHistoryActivity extends AppCompatActivity {
 
     ListView score_list;
     TextView high_score;
+    private FirebaseAuth mAuth;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,15 +45,8 @@ public class ScoreHistoryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_score_history);
         score_list = findViewById(R.id.scoreList);
         high_score = findViewById(R.id.textView4);
-        byte[] bytes = new byte[1024];
 
-        try {
-            FileInputStream is2 = openFileInput("score_history.txt");
-            is2.read(bytes);
-            is2.close();
-            String scoreString = new String(bytes);
-            loadScores(scoreString);
-        } catch (IOException io){}
+        loadScores();
 
     }
 
@@ -54,23 +58,33 @@ public class ScoreHistoryActivity extends AppCompatActivity {
     * loadScors method accepts string of score history and parses into a string
     * for the ArrayAdapter.
     * */
-    protected void loadScores(String stamps){
-        ArrayList<String> split_string = new ArrayList<>(Arrays.asList(stamps.split("\\n")));
-        split_string.remove(split_string.size()-1);
-        String[] sa = stamps.split("\\t|\\n");
-        ArrayList<Integer> ia = new ArrayList<Integer>();
-        for(int i = 0; i < sa.length-2;i+=2){
-            ia.add(Integer.parseInt(sa[i+1]));
-        }
-        int high = Collections.max(ia);
-        high_score.setText(high + "%");
-        for(int i = 0; i < split_string.size();i++){
-            split_string.set(i, split_string.get(i) + "%");
-        }
-        if(split_string != null) {
-            ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                    android.R.layout.simple_list_item_1, android.R.id.text1, split_string);
-            score_list.setAdapter(adapter);
-        }
+    protected void loadScores(){
+
+        mAuth = com.google.firebase.auth.FirebaseAuth.getInstance();
+        FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
+        DatabaseReference DBScoresRef = fbdb.getReference("Scores");
+        DatabaseReference userNode = DBScoresRef.child(mAuth.getCurrentUser().getUid());
+
+        userNode.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                ArrayList<String> scores = new ArrayList<>();
+                for(DataSnapshot child:dataSnapshot.getChildren()) {
+
+                    Scores sc = new Scores(child.getKey(), child.getValue().toString());
+                    scores.add(sc.getTimestamp() + "    :    " + sc.getScore() + "%");
+
+
+                }
+                String[] strAry = new String[scores.size()];
+                strAry = scores.toArray(strAry);
+
+                ListAdapter adapter =
+                        new ArrayAdapter<String>( ScoreHistoryActivity.this,
+                                android.R.layout.simple_list_item_1, strAry);
+                score_list.setAdapter(adapter);
+            }@Override
+            public void onCancelled(DatabaseError firebaseError) {}
+        });
     }
 }

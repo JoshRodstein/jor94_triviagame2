@@ -185,6 +185,7 @@ public class LoginActivity extends AppCompatActivity {
         if (authTrack == true || mAuth.getCurrentUser() != null) {
             Intent intent = new Intent(this, StartActivity.class);
             startActivity(intent);
+
         }
     }
 

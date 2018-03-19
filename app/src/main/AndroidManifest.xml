@@ -29,7 +29,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".StartActivity" />
-        <activity android:name=".TriviaActivity"></activity>
+        <activity android:name=".TriviaActivity"/>
+        <activity android:name=".addtermActivity"/>
+        <activity android:name=".ScoreHistoryActivity"/>
     </application>
 
 </manifest>
