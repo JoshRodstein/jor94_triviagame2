@@ -1,6 +1,12 @@
 package edu.pitt.cs1699.jor94_triviagame2;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,18 +15,32 @@ import android.view.*;
 import android.media.MediaPlayer;
 import android.database.sqlite.*;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+
 
 public class StartActivity extends AppCompatActivity {
 
+    private final int top10Id = 1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
 
+        initChannels(this);
+        startService(new Intent(this, ChildEventListener.class));
+
         // insert terms
         Log.d("START - ON_CREATE", "");
         DatabaseHelper db = new DatabaseHelper(this);
         db.getAllTermsAndDefs();
+
+
 
         final Switch music_switch = (Switch) findViewById(R.id.music_switch);
         final MediaPlayer mp3 = MediaPlayer.create(this, R.raw.jeopardy);
@@ -35,6 +55,21 @@ public class StartActivity extends AppCompatActivity {
                 }
             }
         });
+
+
+    }
+
+    public void initChannels(Context context) {
+        if (Build.VERSION.SDK_INT < 26) {
+            return;
+        }
+        NotificationManager notificationManager =
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationChannel channel = new NotificationChannel("default",
+                "channel_1",
+                NotificationManager.IMPORTANCE_DEFAULT);
+        channel.setDescription("Main Channel");
+        notificationManager.createNotificationChannel(channel);
     }
 
     protected  void onUpdate(){
@@ -63,5 +98,7 @@ public class StartActivity extends AppCompatActivity {
     }
 
 
-
 }
+
+
+
