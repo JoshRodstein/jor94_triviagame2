@@ -126,23 +126,8 @@ public class TriviaActivity extends AppCompatActivity {
         Scores s = new Scores(DateFormat.getDateTimeInstance().format(new Date()).toString(), strScore);
         db.addScore(mAuth.getCurrentUser(), s);
 
-        DatabaseReference DBScoresRef = fbdb.getReference("Scores");
-        DBScoresRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                ArrayList<Scores> scoreList = new ArrayList<>();
-                for(DataSnapshot child:dataSnapshot.getChildren()) {
-                    scoreList.add(new Scores(child.getKey(), child.getValue().toString()));
-                };
+        ScoreHelper.updateHighList(s);
 
-                Collections.sort(scoreList, Comparator.comparing(Scores::getScore));
-                Collections.sort(scoreList, Comparator.comparing(Scores::getTimestamp));
-
-                ScoreHelper.updateHighList(scoreList.get(0));
-
-            }@Override
-            public void onCancelled(DatabaseError firebaseError) {}
-        });
     }
 
     /*
