@@ -31,10 +31,12 @@
             </intent-filter>
         </activity>
         <activity android:name=".StartActivity" />
+        <service android:enabled="true"
+            android:name="edu.pitt.cs1699.jor94_triviagame2.ChildEventListener"/>
         <activity android:name=".TriviaActivity"/>
         <activity android:name=".addtermActivity"/>
         <activity android:name=".ScoreHistoryActivity"/>
-        <service android:name=".ChildEventListener"/>
+
     </application>
 
 

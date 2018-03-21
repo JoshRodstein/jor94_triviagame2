@@ -32,11 +32,11 @@ public class StartActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
 
-        initChannels(this);
-        startService(new Intent(this, ChildEventListener.class));
+
+
 
         // insert terms
-        Log.d("START - ON_CREATE", "");
+        Log.w("START - ON_CREATE", "");
         DatabaseHelper db = new DatabaseHelper(this);
         db.getAllTermsAndDefs();
 
@@ -59,18 +59,7 @@ public class StartActivity extends AppCompatActivity {
 
     }
 
-    public void initChannels(Context context) {
-        if (Build.VERSION.SDK_INT < 26) {
-            return;
-        }
-        NotificationManager notificationManager =
-                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        NotificationChannel channel = new NotificationChannel("default",
-                "channel_1",
-                NotificationManager.IMPORTANCE_DEFAULT);
-        channel.setDescription("Main Channel");
-        notificationManager.createNotificationChannel(channel);
-    }
+
 
     protected  void onUpdate(){
 
