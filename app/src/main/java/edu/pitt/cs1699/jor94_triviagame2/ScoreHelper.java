@@ -29,7 +29,8 @@ public class ScoreHelper {
         fbdb = FirebaseDatabase.getInstance();
     }
 
-    private void sortHigh(){
+    private void sortHigh(int score){
+        FirebaseAuth mAuth = com.google.firebase.auth.FirebaseAuth.getInstance();;
         DatabaseReference DBScoresRef = fbdb.getReference("Scores");
         DatabaseReference userNode = DBScoresRef.child(mAuth.getCurrentUser().getUid());
 
@@ -45,8 +46,6 @@ public class ScoreHelper {
                 Collections.sort(scoreList, Comparator.comparing(Scores::getScore));
                 Collections.sort(scoreList, Comparator.comparing(Scores::getTimestamp));
 
-                updateHighList(scoreList);
-
             }@Override
             public void onCancelled(DatabaseError firebaseError) {}
         });
@@ -54,24 +53,53 @@ public class ScoreHelper {
 
     }
 
-    private void updateHighList(ArrayList<Scores> sc){
+    public static void updateHighList(Scores score){
+        FirebaseAuth mAuth = com.google.firebase.auth.FirebaseAuth.getInstance();
+        FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
         DatabaseReference DbHsRef = fbdb.getReference("HighScores");
 
         DbHsRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()) {
+                    int i = 0;
+                    boolean replace = false;
+                    String prevChildUser = null, tempUser;
+                    int prevChildScore = -1, tempScore;
+                    String prevChildTime = null, tempTime;
                     for(DataSnapshot child:dataSnapshot.getChildren()) {
+                        if(Integer.parseInt(score.getScore()) >
+                                (Integer) child.child("score").getValue() && replace == false) {
 
+                            prevChildUser = child.child("user").getValue().toString();
+                            DbHsRef.child("score" + i).child("user").setValue(mAuth.getCurrentUser().getUid());
+                            prevChildTime = child.child("timestamp").getValue().toString();
+                            DbHsRef.child("score" + i).child("timestamp").setValue(score.getTimestamp());
+                            prevChildScore = (Integer) child.child("score").getValue();
+                            DbHsRef.child("score" + i).child("score").setValue(score.getScore());
+                            replace = true;
+                        } else if (replace == true){
+                            tempUser = child.child("user").getValue().toString();
+                            DbHsRef.child("score" + i).child("user").setValue(prevChildUser);
+                            prevChildUser = tempUser;
+                            tempTime = child.child("timestamp").getValue().toString();
+                            DbHsRef.child("score" + i).child("timestamp").setValue(prevChildTime);
+                            prevChildTime = tempTime;
+                            tempScore = (Integer) child.child("score").getValue();
+                            DbHsRef.child("score" + i).child("score").setValue(prevChildScore);
+                            prevChildScore = tempScore;
+
+                        }
+                        i++;
                     }
                 } else {
-                    for(int i = 0; i < 10 && i < sc.size(); i++) {
-                        DbHsRef.child("HighScores").child(sc.get(i).getTimestamp())
-                                .child(mAuth.getCurrentUser().getUid())
-                                .setValue(sc.get(i).getScore());
+                    DbHsRef.child("HighScores").child("score" + 0)
+                                .child("user").setValue(mAuth.getCurrentUser().getUid());
+                    DbHsRef.child("HighScores").child("score" + 0)
+                            .child("timestamp").setValue(score.getTimestamp());
+                    DbHsRef.child("HighScores").child("score" + 0)
+                            .child("score").setValue(score.getScore());
                     }
-                }
-
 
             }@Override
             public void onCancelled(DatabaseError firebaseError) {}
