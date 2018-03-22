@@ -9,6 +9,7 @@
 
 package edu.pitt.cs1699.jor94_triviagame2;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -18,7 +19,7 @@ import android.widget.EditText;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class addtermActivity extends AppCompatActivity {
+public class addtermActivity extends Activity {
     DatabaseHelper db;
     @Override
     protected void onCreate(Bundle savedInstanceState) {

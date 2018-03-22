@@ -34,7 +34,8 @@
         <service android:enabled="true"
             android:name="edu.pitt.cs1699.jor94_triviagame2.ChildEventListener"/>
         <activity android:name=".TriviaActivity"/>
-        <activity android:name=".addtermActivity"/>
+        <activity android:name=".addtermActivity"
+                  android:theme="@android:style/Theme.Holo.Dialog"/>
         <activity android:name=".ScoreHistoryActivity"/>
 
     </application>

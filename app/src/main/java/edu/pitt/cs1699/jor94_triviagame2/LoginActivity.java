@@ -92,7 +92,7 @@ public class LoginActivity extends AppCompatActivity {
                 .addApi(Auth.GOOGLE_SIGN_IN_API, options)
                 .build();
         mAuth = com.google.firebase.auth.FirebaseAuth.getInstance();
-        startService(new Intent(this, ChildEventListener.class));
+
 
     }
 
@@ -127,6 +127,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
         authTrack = true;
+
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -181,6 +182,7 @@ public class LoginActivity extends AppCompatActivity {
 
         if (authTrack == true || mAuth.getCurrentUser() != null) {
             Intent intent = new Intent(this, StartActivity.class);
+            startService(new Intent(this, ChildEventListener.class));
             startActivity(intent);
 
         }

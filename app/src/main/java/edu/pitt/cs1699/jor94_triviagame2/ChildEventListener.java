@@ -18,13 +18,14 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 /**
  * Created by josh on 3/21/18.
  */
 
 public class ChildEventListener extends Service {
-
+    boolean notifyReady;
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -34,6 +35,7 @@ public class ChildEventListener extends Service {
 
     @Override
     public int onStartCommand(Intent intent,  int flags, int startId) {
+        notifyReady = false;
         initChannels(this);
         Log.w("INIT_LIST:", "IN THE SERVICE");
         initListeners();
@@ -42,6 +44,7 @@ public class ChildEventListener extends Service {
 
     public void onCreate() {
         Log.w("INIT_LIST:", "IN THE SERVICE");
+
     }
 
     public void initChannels(Context context) {
@@ -61,6 +64,7 @@ public class ChildEventListener extends Service {
     }
 
     public void initListeners(){
+
         Log.w("INIT_LIST", "ininit");
         FirebaseAuth mAuth = com.google.firebase.auth.FirebaseAuth.getInstance();
         FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
@@ -76,33 +80,49 @@ public class ChildEventListener extends Service {
 
         DbHsRef.addChildEventListener(new com.google.firebase.database.ChildEventListener() {
 
-            @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                notificationManager.notify(1, mBuilder.build());
+                if (notifyReady) {
+                    notificationManager.notify(1, mBuilder.build());
+                }
             }
 
-            @Override
+
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                notificationManager.notify(1, mBuilder.build());
-
+                if (notifyReady) {
+                    notificationManager.notify(1, mBuilder.build());
+                }
             }
 
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
 
-            }
+            public void onChildRemoved(DataSnapshot dataSnapshot) {}
 
-            @Override
+
             public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-                notificationManager.notify(1, mBuilder.build());
+                if (notifyReady) {
+                    notificationManager.notify(1, mBuilder.build());
+                }
+            }
 
+
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+
+        });
+
+        DbHsRef.addListenerForSingleValueEvent(new com.google.firebase.database.ValueEventListener(){
+
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(notifyReady == false){
+                    notifyReady = true;
+                }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
             }
-
         });
     }
 

@@ -32,15 +32,7 @@ public class StartActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
 
-
-
-
-        // insert terms
         Log.w("START - ON_CREATE", "");
-        DatabaseHelper db = new DatabaseHelper(this);
-        db.getAllTermsAndDefs();
-
-
 
         final Switch music_switch = (Switch) findViewById(R.id.music_switch);
         final MediaPlayer mp3 = MediaPlayer.create(this, R.raw.jeopardy);
