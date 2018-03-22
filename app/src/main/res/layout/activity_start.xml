@@ -6,6 +6,21 @@
     android:layout_height="match_parent"
     tools:context="edu.pitt.cs1699.jor94_triviagame2.StartActivity">
 
+    <ImageView
+        android:id="@+id/ImageView"
+        android:layout_width="164dp"
+        android:layout_height="154dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.889"
+        app:srcCompat="@drawable/common_google_signin_btn_icon_dark_normal_background"/>
+
     <Switch
         android:id="@+id/music_switch"
         android:layout_width="wrap_content"
@@ -50,28 +65,28 @@
         app:layout_constraintHorizontal_bias="0.529"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0">
+        app:layout_constraintVertical_bias="0.795">
 
         <Button
             android:id="@+id/play_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="PLAY"
-            android:onClick="playTrivia"/>
+            android:onClick="playTrivia"
+            android:text="PLAY" />
 
         <Button
             android:id="@+id/add_word_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="ADD WORD"
-            android:onClick="add_word_onClick" />
+            android:onClick="add_word_onClick"
+            android:text="ADD WORD" />
 
         <Button
             android:id="@+id/score_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="SCORE HISTORY"
-            android:onClick="score_history"/>
+            android:onClick="score_history"
+            android:text="SCORE HISTORY" />
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>
