@@ -6,6 +6,21 @@
     android:layout_height="match_parent"
     tools:context="edu.pitt.cs1699.jor94_triviagame2.StartActivity">
 
+    <ImageView
+        android:id="@+id/ImageView"
+        android:layout_width="164dp"
+        android:layout_height="154dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.889"
+        app:srcCompat="@drawable/common_google_signin_btn_icon_dark_normal_background" />
+
     <Switch
         android:id="@+id/music_switch"
         android:layout_width="wrap_content"
