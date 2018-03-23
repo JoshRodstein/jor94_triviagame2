@@ -63,7 +63,7 @@ public class ScoreHelper {
                                     sc.getScore(),
                                     mAuth.getCurrentUser().getUid()));
                             Log.w("GRAB HIGH SCORES", "listSIze = : " + scList.size());
-                            Collections.sort(scList, Comparator.comparing(Scores::getScore).reversed());
+                            Collections.sort(scList, Comparator.comparing(Scores::getIntScore).reversed());
                             Log.w("GRAB HIGH SCORES", "High Score : " + scList.get(0).getScore());
                             //** child name to FINAL VAR
                             for (int i = 0; i < scList.size(); i++) {
