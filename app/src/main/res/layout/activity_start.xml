@@ -6,6 +6,22 @@
     android:layout_height="match_parent"
     tools:context="edu.pitt.cs1699.jor94_triviagame2.StartActivity">
 
+    <Switch
+        android:id="@+id/TTS_Switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Text To Speech"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.069"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.171" />
+
     <ImageView
         android:id="@+id/ImageView"
         android:layout_width="164dp"

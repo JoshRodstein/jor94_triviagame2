@@ -80,6 +80,14 @@ public class TriviaActivity extends AppCompatActivity {
         bar = (ProgressBar) findViewById(R.id.progressBar);
         bar.setMax(5);
 
+        final Switch tts = (Switch) findViewById((R.id.TTS_Switch));
+        tts.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                // initialize Text To speech
+            }
+        });
+
 
         // create DB instance for terms and defs
         db = new DatabaseHelper(this);

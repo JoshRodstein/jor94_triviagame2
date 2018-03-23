@@ -145,9 +145,11 @@ public class ChildEventListener extends Service {
                     new Thread(new Runnable() {
                         public void run() {
                             db.onUpgrade(db.getDB());
-                        }
+                            db.close();
 
+                        }
                     }).start();
+                    db.close();
                     BroadcastReceiver bRec = new BroadcastReceiver() {
                         @Override
                         public void onReceive(Context context, Intent intent) {
