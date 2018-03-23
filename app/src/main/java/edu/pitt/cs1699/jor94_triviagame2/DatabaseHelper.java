@@ -29,16 +29,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TABLE_TERMS = "Terms";
     private static final String KEY_TERM = "term";
     private static final String KEY_DEF = "def";
-    private static final String TABLE_SCORES = "Scores";
-    private static final String KEY_TIME = "timestamp";
-    private static final String KEY_SCORE = "score";
     private static final String ON_CREATE_TAG = "ON_CREATE: ";
     private FirebaseAuth mAuth;
 
 
 
     public DatabaseHelper(Context context){
-       super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     public void onCreate(SQLiteDatabase db){
@@ -121,13 +118,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public List<TermAndDef> getAllTermsAndDefs(){
+        SQLiteDatabase db = this.getWritableDatabase();
         List<TermAndDef> tdList = new ArrayList<>();
 
         String selectQuery = "SELECT *FROM " + TABLE_TERMS;
 
-        SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, null);
 
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        Log.w("getAllTermsAndDefs", "In terms and defs");
         if(cursor.moveToFirst()){
             do {
                 TermAndDef td = new TermAndDef();

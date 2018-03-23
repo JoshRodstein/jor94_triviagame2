@@ -27,6 +27,7 @@ public class StartActivity extends AppCompatActivity {
             .FirebaseAuth.getInstance();
     ImageView profileImage;
 
+
     private final int top10Id = 1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {

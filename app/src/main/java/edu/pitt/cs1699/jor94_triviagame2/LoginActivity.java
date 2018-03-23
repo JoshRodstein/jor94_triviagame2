@@ -3,6 +3,7 @@ package edu.pitt.cs1699.jor94_triviagame2;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
@@ -49,6 +50,7 @@ public class LoginActivity extends AppCompatActivity {
     private boolean authTrack = false;
     private static final String GoogleTAG= "GOOGLE_SIGN_IN:";
     private static final String UserPhotoTAG= "UPLOAD_USER_PHOTO:";
+    DatabaseHelper dbh;
 
 
     @Override
@@ -57,6 +59,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         configureSignIn();
+        new DatabaseHelper(this).getAllTermsAndDefs();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             // Create the NotificationChannel, but only on API 26+ because
@@ -136,7 +139,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String photoURL = dataSnapshot.getValue(String.class);
-                if(photoURL.equals("null")){
+                if(photoURL == null || photoURL.equals("null")){
                     Log.w(UserPhotoTAG, "Take User Photo: ");
                     Intent photoCaptureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                     startActivityForResult(photoCaptureIntent, RC_CAMERA);
