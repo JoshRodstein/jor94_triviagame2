@@ -5,6 +5,7 @@ public class Scores {
     private String Timestamp;
     private String Score;
     private String uid;
+    private int intScore;
 
 
     public Scores() {
@@ -15,11 +16,13 @@ public class Scores {
         this.Timestamp = t;
         this.Score = s;
         this.uid = null;
+        this.intScore = Integer.valueOf(s);
     }
 
     public Scores(String t, String s, String u) {
         this.Timestamp = t;
         this.Score = s;
+        this.intScore = Integer.valueOf(s);
         this.uid = u;
     }
 
@@ -35,5 +38,9 @@ public class Scores {
 
     public void setUid(String id){
         this.uid = id;
+    }
+
+    public int getIntScore(){
+        return intScore;
     }
 }

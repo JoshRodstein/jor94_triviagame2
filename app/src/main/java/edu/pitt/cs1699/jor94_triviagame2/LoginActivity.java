@@ -1,19 +1,17 @@
 package edu.pitt.cs1699.jor94_triviagame2;
 
-import android.app.usage.ConfigurationStats;
-import android.content.Context;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
@@ -60,6 +58,29 @@ public class LoginActivity extends AppCompatActivity {
 
         configureSignIn();
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // Create the NotificationChannel, but only on API 26+ because
+            // the NotificationChannel class is new and not in the support library
+            {
+                CharSequence name = getString(R.string.channel_name);
+                NotificationChannel channel = new NotificationChannel("channel_1", name,
+                        NotificationManager.IMPORTANCE_DEFAULT);
+                channel.setDescription("Top Scores Changed");
+                // Register the channel with the system
+                NotificationManager notificationManager =
+                        (NotificationManager) getSystemService(this.NOTIFICATION_SERVICE);
+                notificationManager.createNotificationChannel(channel);
+
+                name = "channel_2";
+                NotificationChannel channel2 = new NotificationChannel("channel_2", name,
+                        NotificationManager.IMPORTANCE_DEFAULT);
+                channel.setDescription("A user has added a term!");
+                notificationManager.createNotificationChannel(channel2);
+            }
+
+
+        }
+
         mSignInButton = (SignInButton) findViewById(R.id.sign_in_button);
         mSignInButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -69,6 +90,8 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
+
+
 
     }
 

@@ -69,7 +69,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public void onUpgrade(SQLiteDatabase db, int i, int i1){
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int i, int i1) {
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TERMS);
+        Log.w("ON_UPGRADE: ", "System.Call");
+        onCreate(db);
+    }
+    // Overloaded for manual calles without int args
+    public void onUpgrade(SQLiteDatabase db){
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_TERMS);
 
         onCreate(db);
@@ -141,6 +148,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cursor.close();
 
         return cursor.getCount();
+    }
+
+    public SQLiteDatabase getDB(){
+        return this.getWritableDatabase();
     }
 
 

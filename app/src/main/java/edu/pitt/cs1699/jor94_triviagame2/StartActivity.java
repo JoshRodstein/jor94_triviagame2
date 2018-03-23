@@ -72,7 +72,6 @@ public class StartActivity extends AppCompatActivity {
                 profileImage = (ImageView) findViewById(R.id.ImageView);
 
                 try {
-
                     URL url = new URL(photoURL);
                     Bitmap bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
                     Log.w("PHOTO URL", String.valueOf(bmp.getByteCount()));
