@@ -45,6 +45,9 @@ public class ScoreHelper {
         FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
         DatabaseReference DbHsRef = fbdb.getReference("HighScores");
 
+        DatabaseReference DbUserHigh = fbdb.getReference("users")
+                .child(mAuth.getCurrentUser().getUid()).child("UserTopTen");
+
         DbHsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -78,6 +81,43 @@ public class ScoreHelper {
                         DbHsRef.child("score" + 0).child("score").setValue(sc.getScore());
                         DbHsRef.child("score" + 0).child("user").setValue(mAuth.getCurrentUser().getUid());
                     }
+
+
+
+            }@Override
+            public void onCancelled(DatabaseError firebaseError) {}
+        });
+
+        DbUserHigh.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                if(dataSnapshot.exists()) {
+                    if (dataSnapshot.hasChildren()) {
+                        ArrayList<Scores> scList = new ArrayList<>();
+                        String t, s, u;
+                        for (DataSnapshot child : dataSnapshot.getChildren()) {
+                            t = String.valueOf(child.child("timestamp").getValue());
+                            s = String.valueOf(child.child("score").getValue());
+                            scList.add(new Scores(t, s));
+                        }
+                        scList.add(new Scores(sc.getTimestamp(),
+                                sc.getScore(),
+                                mAuth.getCurrentUser().getUid()));
+                        Log.w("GRAB HIGH SCORES", "listSIze = : " + scList.size());
+                        Collections.sort(scList, Comparator.comparing(Scores::getIntScore).reversed());
+                        Log.w("GRAB HIGH SCORES", "High Score : " + scList.get(0).getScore());
+                        //** child name to FINAL VAR
+                        for (int i = 0; i < scList.size(); i++) {
+                            DbUserHigh.child("score" + i).child("timestamp").setValue(scList.get(i).getTimestamp());
+                            DbUserHigh.child("score" + i).child("score").setValue(scList.get(i).getScore());
+                            if(i == 9){break;}
+                        }
+                    }
+                } else {
+                    DbUserHigh.child("score" + 0).child("timestamp").setValue(sc.getTimestamp());
+                    DbUserHigh.child("score" + 0).child("score").setValue(sc.getScore());
+                }
 
 
 

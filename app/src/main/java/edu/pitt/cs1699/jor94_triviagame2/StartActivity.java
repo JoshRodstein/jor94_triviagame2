@@ -27,15 +27,15 @@ public class StartActivity extends AppCompatActivity {
             .FirebaseAuth.getInstance();
     ImageView profileImage;
 
-
     private final int top10Id = 1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
 
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        new DatabaseHelper(this).getReadableDatabase();
 
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
         loadProfileImage();

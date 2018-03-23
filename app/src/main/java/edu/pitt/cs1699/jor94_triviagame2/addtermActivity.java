@@ -37,24 +37,11 @@ public class addtermActivity extends Activity {
         String defString = def.getText().toString();
 
         if(!termString.equals("") && !defString.equals("")){
-           db.addTerm(new TermAndDef(termString, defString));
+           db.addTermToFB(new TermAndDef(termString, defString));
         }
 
         finish();
     }
 
-    public void addToGlossary(CharSequence term, CharSequence def){
-        String t = (String)term;
-        String d = (String)def;
-        try {
-            FileOutputStream fOut = openFileOutput("new_gloss.txt",MODE_APPEND);
-            fOut.write((t+System.getProperty("line.separator")).getBytes());
-            fOut.write((d+System.getProperty("line.separator")).getBytes());
-            fOut.close();
-        } catch(IOException io) {
-            Log.e("ERROR", io.toString());
-        }
-
-    }
 
 }

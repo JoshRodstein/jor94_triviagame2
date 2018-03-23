@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.DatabaseErrorHandler;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
@@ -39,13 +40,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public void onCreate(SQLiteDatabase db){
-        Log.d("ON_CREATE DB HELPER:", "INSIDE DB ONCREATE");
+        Log.w("ON_CREATE DB HELPER:", "INSIDE DB ONCREATE");
+        String DROP_TABLE = "DROP TABLE IF EXISTS " + TABLE_TERMS + ";";
         String CREATE_TERMS_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_TERMS + "(\n"
-                + KEY_TERM + " TEXT PRIMARY KEY,\n"
-                + KEY_DEF + " TEXT"
+                + KEY_TERM + " TEXT PRIMARY KEY NOT NULL,\n"
+                + KEY_DEF + " TEXT NOT NULL"
                 + ");";
+        db.execSQL(DROP_TABLE);
         db.execSQL(CREATE_TERMS_TABLE);
-
         mAuth = com.google.firebase.auth.FirebaseAuth.getInstance();
         FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
         DatabaseReference DBTermsRef = fbdb.getReference("TermsAndDefs");
@@ -54,11 +56,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for(DataSnapshot child:dataSnapshot.getChildren()) {
-
                     Log.w(ON_CREATE_TAG,child.getKey());
                     Log.w(ON_CREATE_TAG,child.getValue().toString());
                     TermAndDef td = new TermAndDef(child.getKey(), child.getValue().toString());
-                    addTerm(td);
+                    try {
+                        addTerm(td);
+                    }catch (Exception e){
+                        Log.w(e.toString(), "TERM EXISTS: SOME TABLES MAY NOT BE DROPPED");
+                    }
                 }
             }@Override
             public void onCancelled(DatabaseError firebaseError) {}
@@ -68,19 +73,29 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int i, int i1) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TERMS);
+        db.execSQL("DROP TABLE " + TABLE_TERMS);
         Log.w("ON_UPGRADE: ", "System.Call");
         onCreate(db);
     }
     // Overloaded for manual calles without int args
     public void onUpgrade(SQLiteDatabase db){
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TERMS);
+        db.execSQL("DROP TABLE " + TABLE_TERMS);
 
         onCreate(db);
     }
 
+    void addTermToFB(TermAndDef td) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
+        DatabaseReference dbRef = fbdb.getReference("TermsAndDefs");
+
+
+        dbRef.child(td.getTerm()).setValue(td.getDef());
+    }
+
     void addTerm(TermAndDef td){
         SQLiteDatabase db = this.getWritableDatabase();
+
         FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
         DatabaseReference dbRef = fbdb.getReference("TermsAndDefs");
 
@@ -89,8 +104,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(KEY_TERM, td.getTerm());
         values.put(KEY_DEF, td.getDef());
-
-        db.insert(TABLE_TERMS, null, values);
+        try {
+            db.insertOrThrow(TABLE_TERMS, null, values);
+        } catch (SQLiteConstraintException sqle){}
         db.close();
     }
 
@@ -113,7 +129,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
 
         TermAndDef td = new TermAndDef(cursor.getString(0), cursor.getString(1));
-
+        db.close();
         return td;
     }
 

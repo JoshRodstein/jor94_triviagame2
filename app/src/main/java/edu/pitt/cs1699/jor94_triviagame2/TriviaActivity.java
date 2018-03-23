@@ -136,7 +136,7 @@ public class TriviaActivity extends AppCompatActivity {
         int t = rand.nextInt(5);
         ArrayList<TermAndDef> tdList = new ArrayList<>(db.getAllTermsAndDefs());
 
-       // System.exit(0);
+
         Collections.shuffle(tdList);
         term.setText(tdList.get(t).getTerm());
         ans = tdList.get(t).getDef();
