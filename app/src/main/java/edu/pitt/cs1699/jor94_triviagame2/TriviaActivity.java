@@ -57,16 +57,15 @@ import java.util.Date;
 import java.util.Random;
 
 public class TriviaActivity extends AppCompatActivity {
-
-    TextView term;
-    String ans;
-    ListView list_triv;
-    ProgressBar bar;
-    DatabaseHelper db;
-    ArrayList gList;
-    int qCounter = 0, correct= 0, barProg = 0;
+    private Switch tts;
+    private TextView term;
+    private String ans;
+    private ListView list_triv;
+    private ProgressBar bar;
+    private DatabaseHelper db;
+    private int qCounter = 0, correct= 0, barProg = 0;
     private FirebaseAuth mAuth;
-    FirebaseDatabase fbdb;
+    private FirebaseDatabase fbdb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,13 +73,12 @@ public class TriviaActivity extends AppCompatActivity {
         setContentView(R.layout.activity_trivia);
         mAuth = com.google.firebase.auth.FirebaseAuth.getInstance();
         fbdb = FirebaseDatabase.getInstance();
-        byte[] bytes = new byte[1024];
         list_triv = findViewById(R.id.triv_list);
         term = findViewById(R.id.term_text);
         bar = (ProgressBar) findViewById(R.id.progressBar);
         bar.setMax(5);
 
-        final Switch tts = (Switch) findViewById((R.id.TTS_Switch));
+        tts = (Switch) findViewById((R.id.TTS_Switch));
         tts.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {

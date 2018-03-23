@@ -179,6 +179,10 @@ public class LoginActivity extends AppCompatActivity {
             StorageReference userImagesRef = storageRef.child("user_photos/" + photo);
 
             Bitmap bitmap = (Bitmap)data.getExtras().get("data");
+            if(bitmap.getByteCount() == 0){
+                finish();
+                startActivity(getIntent());
+            }
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
             byte[] dataAry = baos.toByteArray();
@@ -199,6 +203,9 @@ public class LoginActivity extends AppCompatActivity {
                 }
             });
 
+        } else if (requestCode == RC_CAMERA && requestCode != RESULT_OK){
+            finish();
+            startActivity(getIntent());
         }
 
     }
