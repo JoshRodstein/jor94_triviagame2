@@ -134,7 +134,7 @@ public class TriviaActivity extends AppCompatActivity {
 
                 for (int i = 0; i < 5; i++){
                     TTSpeak.speak(tdAry[i],
-                            TextToSpeech.QUEUE_ADD,null,);
+                            TextToSpeech.QUEUE_ADD,null, null);
                 }
 
             } else {
