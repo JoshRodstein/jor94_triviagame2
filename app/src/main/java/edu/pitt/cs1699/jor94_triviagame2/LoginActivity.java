@@ -235,6 +235,8 @@ public class LoginActivity extends AppCompatActivity {
                 });
         authTrack = false;
 
+        stopService(new Intent(this, ChildEventListener.class));
+
     }
 
 
