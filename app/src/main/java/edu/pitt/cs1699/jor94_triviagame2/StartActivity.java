@@ -25,7 +25,8 @@ import java.net.URL;
 public class StartActivity extends AppCompatActivity {
     private FirebaseAuth mAuth = com.google.firebase.auth
             .FirebaseAuth.getInstance();
-    ImageView profileImage;
+    private ImageView profileImage;
+    private boolean ttsIsOn;
 
     private final int top10Id = 1;
     @Override
@@ -52,6 +53,20 @@ public class StartActivity extends AppCompatActivity {
                 } else {
                     mp3.start();
                     mp3.setLooping(true);
+                }
+            }
+        });
+
+        ttsIsOn = false;
+        Switch tts = (Switch) findViewById((R.id.TTS_Switch));
+        tts.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                // initialize Text To speech
+                if (ttsIsOn == true){
+                    ttsIsOn = false;
+                } else if (ttsIsOn == false) {
+                    ttsIsOn = true;
                 }
             }
         });
@@ -97,12 +112,12 @@ public class StartActivity extends AppCompatActivity {
 
     protected void onStart(){
         super.onStart();
-
-
     }
 
     public void playTrivia(View view) {
+
         Intent intent = new Intent(this, TriviaActivity.class);
+        intent.putExtra("ttsIsOn", ttsIsOn);
         startActivity(intent);
     }
 

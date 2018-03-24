@@ -9,7 +9,9 @@ package edu.pitt.cs1699.jor94_triviagame2;
 * */
 
 
+import android.os.Build;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -19,42 +21,17 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.*;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
-import java.util.List;
 import java.util.Random;
-
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.widget.*;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Random;
 
 public class TriviaActivity extends AppCompatActivity {
     private Switch tts;
@@ -66,9 +43,14 @@ public class TriviaActivity extends AppCompatActivity {
     private int qCounter = 0, correct= 0, barProg = 0;
     private FirebaseAuth mAuth;
     private FirebaseDatabase fbdb;
+    private boolean ttsReady;
+    private TextToSpeech TTSpeak;
+    private ArrayList<TermAndDef> tdList;
+    private String[] tdAry;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        ttsReady = false;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trivia);
         mAuth = com.google.firebase.auth.FirebaseAuth.getInstance();
@@ -77,19 +59,16 @@ public class TriviaActivity extends AppCompatActivity {
         term = findViewById(R.id.term_text);
         bar = (ProgressBar) findViewById(R.id.progressBar);
         bar.setMax(5);
-
-        tts = (Switch) findViewById((R.id.TTS_Switch));
-        tts.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                // initialize Text To speech
-            }
-        });
+        tdAry = new String[5];
 
 
         // create DB instance for terms and defs
         db = new DatabaseHelper(this);
         generateQuiz();
+
+        if (getIntent().getExtras().getBoolean("ttsIsOn") == true){
+            initTTS();
+        }
 
         list_triv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -120,6 +99,18 @@ public class TriviaActivity extends AppCompatActivity {
         });
     }
 
+    protected void initTTS(){
+        TTSpeak = new TextToSpeech(this,
+                new TextToSpeech.OnInitListener() {
+                    public void onInit(int status) {
+                        ttsReady = true;
+                        quizSpeak();
+                    }
+                });
+
+    }
+
+
     /*
     * Save score by creating file in Android internal storage
     * */
@@ -134,26 +125,51 @@ public class TriviaActivity extends AppCompatActivity {
 
     }
 
+    private void quizSpeak(){
+        if(ttsReady == true){
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+
+                TTSpeak.speak(term.getText().toString() + " is defined as ",
+                        TextToSpeech.QUEUE_ADD,null,null);
+
+                for (int i = 0; i < 5; i++){
+                    TTSpeak.speak(tdAry[i],
+                            TextToSpeech.QUEUE_ADD,null,);
+                }
+
+            } else {
+
+                TTSpeak.speak(term.getText().toString() + " is defined as ",
+                        TextToSpeech.QUEUE_ADD,null);
+
+                for (int i = 0; i < 5; i++){
+                    TTSpeak.speak(tdAry[i],
+                            TextToSpeech.QUEUE_ADD,null);
+                }
+
+            }
+        }
+    }
+
     /*
     * Load, shuffle and read from existing glossary files.
     * */
     protected void generateQuiz(){
+        if( ttsReady == true && TTSpeak.isSpeaking()){
+            TTSpeak.stop();
+        }
+
         Random rand = new Random();
         int t = rand.nextInt(5);
-        ArrayList<TermAndDef> tdList = new ArrayList<>(db.getAllTermsAndDefs());
-
+        tdList = new ArrayList<>(db.getAllTermsAndDefs());
 
         Collections.shuffle(tdList);
         term.setText(tdList.get(t).getTerm());
         ans = tdList.get(t).getDef();
-        String[] tdAry = {
-                tdList.get(0).getDef(),
-                tdList.get(1).getDef(),
-                tdList.get(2).getDef(),
-                tdList.get(3).getDef(),
-                tdList.get(4).getDef()
-        };
-
+        for (int i = 0; i < 5; i ++) {
+            tdAry[i]= tdList.get(i).getDef();
+        }
+        quizSpeak();
         final ArrayAdapter arrayAdapter = new ArrayAdapter<String>(
                 this,
                 android.R.layout.simple_list_item_1,
@@ -162,5 +178,15 @@ public class TriviaActivity extends AppCompatActivity {
         list_triv.setAdapter(arrayAdapter);
 
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (TTSpeak.isSpeaking()){
+            TTSpeak.shutdown();
+        }
+    }
+
+
 
 }
