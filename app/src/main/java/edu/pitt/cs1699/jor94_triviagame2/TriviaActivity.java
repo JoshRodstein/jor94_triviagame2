@@ -45,7 +45,6 @@ public class TriviaActivity extends AppCompatActivity {
     private FirebaseDatabase fbdb;
     private boolean ttsReady;
     private TextToSpeech TTSpeak;
-    private ArrayList<TermAndDef> tdList;
     private String[] tdAry;
 
     @Override
@@ -161,7 +160,7 @@ public class TriviaActivity extends AppCompatActivity {
 
         Random rand = new Random();
         int t = rand.nextInt(5);
-        tdList = new ArrayList<>(db.getAllTermsAndDefs());
+        ArrayList<TermAndDef> tdList = new ArrayList<>(db.getAllTermsAndDefs());
 
         Collections.shuffle(tdList);
         term.setText(tdList.get(t).getTerm());
@@ -182,7 +181,7 @@ public class TriviaActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if (TTSpeak.isSpeaking()){
+        if (ttsReady == true && TTSpeak.isSpeaking()){
             TTSpeak.shutdown();
         }
     }
